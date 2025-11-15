@@ -77,10 +77,10 @@
 #define SPI_READ_FREQUENCY 16000000
 
 // Use ST7789 panel as base (NV3007 is compatible)
-#define ST7789S  // Use ST7789 driver as NV3007 base
+// Note: ST7789S is defined in platformio.ini
 
 // LoRa Radio (SX1262 via SPI)
-#define USE_SX1262
+// Note: USE_SX1262 is defined in platformio.ini
 
 #define LORA_SCK 8
 #define LORA_MISO 9
