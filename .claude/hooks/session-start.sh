@@ -35,6 +35,15 @@ if [ -d "meshtastic-firmware" ]; then
     # Run a quick library install without building
     pio pkg install -e supercon_2025 2>/dev/null || true
     cd ..
+
+    # Copy LGFX_SUPERCON_2025.h to device-ui library after dependencies are installed
+    echo "🎨 Installing custom LGFX driver for NV3007 display..."
+    DEVICE_UI_DIR=$(find meshtastic-firmware/.pio -path "*/libdeps/*/meshtastic-device-ui" -type d 2>/dev/null | head -1)
+    if [ -n "$DEVICE_UI_DIR" ] && [ -f "meshtastic_variant/supercon_2025/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h" ]; then
+        mkdir -p "$DEVICE_UI_DIR/include/graphics/LGFX"
+        cp meshtastic_variant/supercon_2025/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h \
+           "$DEVICE_UI_DIR/include/graphics/LGFX/" 2>/dev/null || true
+    fi
 fi
 
 echo "✅ Development environment ready!"
