@@ -36,13 +36,23 @@ if [ -d "meshtastic-firmware" ]; then
     pio pkg install -e supercon_2025 2>/dev/null || true
     cd ..
 
-    # Copy LGFX_SUPERCON_2025.h to device-ui library after dependencies are installed
+    # Apply Supercon 2025 patches to device-ui library
     echo "🎨 Installing custom LGFX driver for NV3007 display..."
     DEVICE_UI_DIR=$(find meshtastic-firmware/.pio -path "*/libdeps/*/meshtastic-device-ui" -type d 2>/dev/null | head -1)
     if [ -n "$DEVICE_UI_DIR" ] && [ -f "meshtastic_variant/supercon_2025/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h" ]; then
+        # Copy LGFX header
         mkdir -p "$DEVICE_UI_DIR/include/graphics/LGFX"
         cp meshtastic_variant/supercon_2025/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h \
            "$DEVICE_UI_DIR/include/graphics/LGFX/" 2>/dev/null || true
+
+        # Patch DisplayDriverFactory.cpp to include our header
+        FACTORY_FILE="$DEVICE_UI_DIR/source/graphics/driver/DisplayDriverFactory.cpp"
+        if [ -f "$FACTORY_FILE" ] && ! grep -q "SUPERCON_2025" "$FACTORY_FILE" 2>/dev/null; then
+            sed -i '/^#ifdef UNPHONE$/a\
+#ifdef SUPERCON_2025\
+#include "graphics/LGFX/LGFX_SUPERCON_2025.h"\
+#endif' "$FACTORY_FILE" 2>/dev/null || true
+        fi
     fi
 fi
 
