@@ -51,10 +51,31 @@ fi
 
 # Patch if needed
 if ! grep -q "SUPERCON_2025" "$FACTORY" 2>/dev/null; then
+    # Add include after UNPHONE block
     sed -i '/^#ifdef UNPHONE$/a\
 #ifdef SUPERCON_2025\
 #include "graphics/LGFX/LGFX_SUPERCON_2025.h"\
 #endif' "$FACTORY"
+
+    # Verify patch was applied
+    if ! grep -q "SUPERCON_2025" "$FACTORY"; then
+        echo "ERROR: Failed to patch DisplayDriverFactory.cpp"
+        echo "Trying alternative patch method..."
+        # Alternative: patch after the #endif following UNPHONE
+        sed -i '/^#ifdef UNPHONE$/,/^#endif/{
+            /^#endif/a\
+#ifdef SUPERCON_2025\
+#include "graphics/LGFX/LGFX_SUPERCON_2025.h"\
+#endif
+        }' "$FACTORY"
+    fi
+
+    # Final check
+    if ! grep -q "SUPERCON_2025" "$FACTORY"; then
+        echo "ERROR: Patch still failed!"
+        echo "Manual intervention required."
+        exit 1
+    fi
 fi
 
 # Copy LGFX header
