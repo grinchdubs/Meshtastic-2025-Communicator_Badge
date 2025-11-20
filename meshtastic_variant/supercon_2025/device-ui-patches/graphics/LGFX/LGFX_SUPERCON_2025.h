@@ -37,11 +37,6 @@ class LGFX_SUPERCON_2025 : public lgfx::LGFX_Device
         _light_instance.setBrightness(brightness);
     }
 
-    uint8_t getBrightness(void) const
-    {
-        return _light_instance.getBrightness();
-    }
-
     LGFX_SUPERCON_2025(void)
     {
         {
