@@ -25,7 +25,10 @@ fi
 if [ -d "meshtastic_variant/supercon_2025" ] && [ -d "meshtastic-firmware" ]; then
     echo "📋 Installing Supercon 2025 board variant..."
     mkdir -p meshtastic-firmware/variants/esp32s3/supercon_2025
+    mkdir -p meshtastic-firmware/boards
     cp -r meshtastic_variant/supercon_2025/* meshtastic-firmware/variants/esp32s3/supercon_2025/ 2>/dev/null || true
+    # Copy custom board definition with Octal PSRAM support
+    cp meshtastic_variant/supercon_2025/supercon_2025.json meshtastic-firmware/boards/ 2>/dev/null || true
 fi
 
 # Pre-install PlatformIO libraries for faster first build
