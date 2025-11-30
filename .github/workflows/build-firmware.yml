@@ -54,57 +54,30 @@ jobs:
       working-directory: ./meshtastic-firmware
       run: pio pkg install -e supercon_2025
     
-    - name: Copy LGFX driver
+    - name: Copy LGFX driver and create header symlink
       run: |
         LGFX_DEST="meshtastic-firmware/.pio/libdeps/supercon_2025/meshtastic-device-ui/include/graphics/LGFX/"
         mkdir -p "$LGFX_DEST"
-        if [ -d "meshtastic-firmware/variants/esp32s3/supercon_2025/device-ui-patches/LGFX" ]; then
-          cp meshtastic-firmware/variants/esp32s3/supercon_2025/device-ui-patches/LGFX/*.h "$LGFX_DEST/"
+        if [ -f "meshtastic-firmware/variants/esp32s3/supercon_2025/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h" ]; then
+          cp meshtastic-firmware/variants/esp32s3/supercon_2025/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h "$LGFX_DEST/"
+          echo "✓ LGFX_SUPERCON_2025.h copied to device-ui"
+        else
+          echo "Error: LGFX_SUPERCON_2025.h not found!"
+          exit 1
         fi
     
     - name: Patch DisplayDriverFactory
       working-directory: ./meshtastic-firmware
       run: |
-        python3 << 'EOF'
-        import os
-        file_path = '.pio/libdeps/supercon_2025/meshtastic-device-ui/source/graphics/driver/DisplayDriverFactory.cpp'
+        FILE=".pio/libdeps/supercon_2025/meshtastic-device-ui/source/graphics/driver/DisplayDriverFactory.cpp"
         
-        # Wait for file to exist
-        if not os.path.exists(file_path):
-            print(f'Warning: {file_path} not found yet')
-            exit(0)
+        # Simple approach: just add the include at the top of the file
+        if ! grep -q "LGFX_SUPERCON_2025.h" "$FILE"; then
+          sed -i '1i #if defined(LGFX_DRIVER)\n#include "graphics/LGFX/LGFX_SUPERCON_2025.h"\n#endif' "$FILE"
+          echo "✓ Added LGFX_SUPERCON_2025.h include"
+        fi
         
-        with open(file_path, 'r') as f:
-            content = f.read()
-        
-        # Add include for LGFX_SUPERCON_2025
-        if '#include "graphics/LGFX/LGFX_SUPERCON_2025.h"' not in content:
-            # Find the last LGFX include and add after it
-            if '#include "graphics/LGFX/' in content:
-                last_lgfx = content.rfind('#include "graphics/LGFX/')
-                next_endif = content.find('#endif', last_lgfx)
-                if next_endif != -1:
-                    insertion_point = next_endif + len('#endif\n')
-                    content = (content[:insertion_point] + 
-                              '#ifdef LGFX_DRIVER\n' +
-                              '#if LGFX_DRIVER == LGFX_SUPERCON_2025\n' +
-                              '#include "graphics/LGFX/LGFX_SUPERCON_2025.h"\n' +
-                              '#endif\n' +
-                              '#endif\n' +
-                              content[insertion_point:])
-        
-        # Add screen dimension override
-        if 'LGFX_SCREEN_WIDTH' not in content:
-            content = content.replace(
-                '#elif defined(LGFX_DRIVER)\n    return new LGFXDriver<LGFX_DRIVER>(width, height);',
-                '#elif defined(LGFX_DRIVER)\n#if defined(LGFX_SCREEN_WIDTH) && defined(LGFX_SCREEN_HEIGHT)\n    return new LGFXDriver<LGFX_DRIVER>(LGFX_SCREEN_WIDTH, LGFX_SCREEN_HEIGHT);\n#else\n    return new LGFXDriver<LGFX_DRIVER>(width, height);\n#endif'
-            )
-        
-        with open(file_path, 'w') as f:
-            f.write(content)
-        
-        print('✓ DisplayDriverFactory patched')
-        EOF
+        echo "✓ DisplayDriverFactory patched"
     
     - name: Build firmware
       working-directory: ./meshtastic-firmware
