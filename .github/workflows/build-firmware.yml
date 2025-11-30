@@ -66,13 +66,32 @@ jobs:
       working-directory: ./meshtastic-firmware
       run: |
         python3 << 'EOF'
+        import os
         file_path = '.pio/libdeps/supercon_2025/meshtastic-device-ui/source/graphics/driver/DisplayDriverFactory.cpp'
+        
+        # Wait for file to exist
+        if not os.path.exists(file_path):
+            print(f'Warning: {file_path} not found yet')
+            exit(0)
         
         with open(file_path, 'r') as f:
             content = f.read()
         
-        # Add include for LGFX_SUPERCON_2025 if needed
-        # The variant may already have proper LGFX configuration
+        # Add include for LGFX_SUPERCON_2025
+        if '#include "graphics/LGFX/LGFX_SUPERCON_2025.h"' not in content:
+            # Find the last LGFX include and add after it
+            if '#include "graphics/LGFX/' in content:
+                last_lgfx = content.rfind('#include "graphics/LGFX/')
+                next_endif = content.find('#endif', last_lgfx)
+                if next_endif != -1:
+                    insertion_point = next_endif + len('#endif\n')
+                    content = (content[:insertion_point] + 
+                              '#ifdef LGFX_DRIVER\n' +
+                              '#if LGFX_DRIVER == LGFX_SUPERCON_2025\n' +
+                              '#include "graphics/LGFX/LGFX_SUPERCON_2025.h"\n' +
+                              '#endif\n' +
+                              '#endif\n' +
+                              content[insertion_point:])
         
         # Add screen dimension override
         if 'LGFX_SCREEN_WIDTH' not in content:
