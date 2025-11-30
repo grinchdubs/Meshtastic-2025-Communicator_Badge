@@ -43,7 +43,10 @@ jobs:
     - name: Copy variant files
       run: |
         mkdir -p meshtastic-firmware/variants/esp32s3/supercon_heltec
+        # Copy supercon_2025 hardware files (variant.h, pins, LGFX driver, etc)
         cp -r meshtastic_variant/supercon_2025/* meshtastic-firmware/variants/esp32s3/supercon_heltec/
+        # Overwrite with supercon_heltec platformio.ini (correct board config)
+        cp meshtastic_variant/supercon_heltec/platformio.ini meshtastic-firmware/variants/esp32s3/supercon_heltec/
     
     - name: Install dependencies
       working-directory: ./meshtastic-firmware
