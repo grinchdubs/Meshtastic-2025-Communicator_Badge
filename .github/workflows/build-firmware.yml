@@ -1,0 +1,105 @@
+name: Build Meshtastic Firmware
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Cache PlatformIO
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.platformio
+          ~/.cache/pip
+        key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+        restore-keys: |
+          ${{ runner.os }}-pio-
+    
+    - name: Install PlatformIO
+      run: |
+        python -m pip install --upgrade pip
+        pip install platformio
+    
+    - name: Copy variant files
+      run: |
+        mkdir -p meshtastic-firmware/variants/esp32s3/supercon_heltec
+        cp -r meshtastic_variant/supercon_heltec/* meshtastic-firmware/variants/esp32s3/supercon_heltec/
+    
+    - name: Install dependencies
+      working-directory: ./meshtastic-firmware
+      run: pio pkg install -e supercon-heltec
+    
+    - name: Copy LGFX driver
+      run: |
+        LGFX_DEST="meshtastic-firmware/.pio/libdeps/supercon-heltec/meshtastic-device-ui/include/graphics/LGFX/"
+        mkdir -p "$LGFX_DEST"
+        cp meshtastic-firmware/variants/esp32s3/supercon_heltec/lgfx/LGFX_SUPERCON_2025.h "$LGFX_DEST/"
+    
+    - name: Patch DisplayDriverFactory
+      working-directory: ./meshtastic-firmware
+      run: |
+        python3 << 'EOF'
+        file_path = '.pio/libdeps/supercon-heltec/meshtastic-device-ui/source/graphics/driver/DisplayDriverFactory.cpp'
+        
+        with open(file_path, 'r') as f:
+            content = f.read()
+        
+        # Add include for LGFX_SUPERCON_HELTEC
+        if '#include "graphics/LGFX/LGFX_SUPERCON_2025.h"' not in content:
+            content = content.replace(
+                '#include "graphics/LGFX/LGFX_ESPILI9341XPT2046.h"\n#endif',
+                '#include "graphics/LGFX/LGFX_ESPILI9341XPT2046.h"\n#endif\n#ifdef LGFX_SUPERCON_HELTEC\n#include "graphics/LGFX/LGFX_SUPERCON_2025.h"\n#endif'
+            )
+        
+        # Add screen dimension override
+        if 'LGFX_SCREEN_WIDTH' not in content:
+            content = content.replace(
+                '#elif defined(LGFX_DRIVER)\n    return new LGFXDriver<LGFX_DRIVER>(width, height);',
+                '#elif defined(LGFX_DRIVER)\n#if defined(LGFX_SCREEN_WIDTH) && defined(LGFX_SCREEN_HEIGHT)\n    return new LGFXDriver<LGFX_DRIVER>(LGFX_SCREEN_WIDTH, LGFX_SCREEN_HEIGHT);\n#else\n    return new LGFXDriver<LGFX_DRIVER>(width, height);\n#endif'
+            )
+        
+        with open(file_path, 'w') as f:
+            f.write(content)
+        
+        print('✓ DisplayDriverFactory patched')
+        EOF
+    
+    - name: Build firmware
+      working-directory: ./meshtastic-firmware
+      run: pio run -e supercon-heltec
+    
+    - name: Upload firmware artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-supercon-heltec
+        path: |
+          meshtastic-firmware/.pio/build/supercon-heltec/firmware.bin
+          meshtastic-firmware/.pio/build/supercon-heltec/firmware.factory.bin
+          meshtastic-firmware/.pio/build/supercon-heltec/firmware.elf
+        if-no-files-found: error
+    
+    - name: Create release on tag
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          meshtastic-firmware/.pio/build/supercon-heltec/firmware.factory.bin
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
