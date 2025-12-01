@@ -5,10 +5,13 @@
 CONFIG_ESP32S3_SPIRAM_SUPPORT=y
 CONFIG_SPIRAM=y
 
-# CRITICAL: Use VENDOR config mode (lets ESP-IDF auto-detect PSRAM chip)
+# CRITICAL: Octal PSRAM mode (AP/APS6404 vendor from eFuse)
 CONFIG_SPIRAM_MODE_OCT=y
 
-# Speed: 80MHz (matching MicroPython)
+# VENDOR: Explicitly set AP PSRAM (APS6404) - matches eFuse PSRAM_VENDOR=AP_3v3
+CONFIG_SPIRAM_ECC_ENABLE=n
+
+# Speed: 80MHz (matching MicroPython and eFuse)
 CONFIG_SPIRAM_SPEED_80M=y
 
 # Initialize at boot
