@@ -1,4 +1,4 @@
-vC:\Users\cuban\Downloads\firmware-supercon-heltec-5name: Build Meshtastic Firmware
+name: Build Meshtastic Firmware
 
 on:
   push:
