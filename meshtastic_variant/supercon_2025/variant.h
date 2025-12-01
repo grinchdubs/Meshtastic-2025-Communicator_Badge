@@ -38,25 +38,25 @@
 #define SAO_GPIO1_PIN 7
 #define SAO_GPIO2_PIN 6
 
-// Display SPI (NV3007 TFT - 428×142 landscape)
+// Display SPI (NV3007 TFT - 428×142 landscape) - TEMPORARILY DISABLED
 // NV3007 is similar to ST7789 but with custom initialization
-#define HAS_SCREEN 1
-#define HAS_TFT 1
-#define USE_NV3007
+// #define HAS_SCREEN 1
+// #define HAS_TFT 1
+// #define USE_NV3007
 
-// SPI pins for display
-#define TFT_SDA 21      // MOSI
-#define TFT_SCL 38      // SCK
-#define TFT_MISO -1     // Not connected
-#define TFT_CS 41       // Chip Select
-#define TFT_DC 39       // Data/Command
-#define TFT_RST 40      // Reset
-#define TFT_BL 2        // Backlight (PWM)
-#define TFT_TE 42       // Tearing Effect (optional)
+// SPI pins for display - DISABLED
+// #define TFT_SDA 21      // MOSI
+// #define TFT_SCL 38      // SCK
+// #define TFT_MISO -1     // Not connected
+// #define TFT_CS 41       // Chip Select
+// #define TFT_DC 39       // Data/Command
+// #define TFT_RST 40      // Reset
+// #define TFT_BL 2        // Backlight (PWM)
+// #define TFT_TE 42       // Tearing Effect (optional)
 
-// Display configuration
-#define TFT_WIDTH 142
-#define TFT_HEIGHT 428
+// Display configuration - DISABLED
+// #define TFT_WIDTH 142
+// #define TFT_HEIGHT 428
 // Display configuration temporarily disabled to test radio without PSRAM
 // #define TFT_OFFSET_X 0
 // #define TFT_OFFSET_Y 12  // From MicroPython firmware
