@@ -1,49 +1,21 @@
 # ESP32-S3 PSRAM Configuration for Supercon 2025 Badge
-# Based on working MicroPython SPIRAM_OCT configuration
+# Simplified to match MicroPython's minimal SPIRAM_OCT configuration
 
-# Enable PSRAM - Octal Mode
-CONFIG_ESP32S3_SPIRAM_SUPPORT=y
-CONFIG_SPIRAM=y
-
-# CRITICAL: Octal PSRAM mode (AP/APS6404 vendor from eFuse)
+# Enable SPIRAM in Octal mode (matches MicroPython sdkconfig.spiram_oct)
+CONFIG_SPIRAM_MODE_QUAD=
 CONFIG_SPIRAM_MODE_OCT=y
-
-# VENDOR: Explicitly set AP PSRAM (APS6404) - matches eFuse PSRAM_VENDOR=AP_3v3
-CONFIG_SPIRAM_ECC_ENABLE=n
-
-# Speed: 80MHz (matching MicroPython and eFuse)
+CONFIG_SPIRAM_TYPE_AUTO=y
 CONFIG_SPIRAM_SPEED_80M=y
-
-# Initialize at boot
+CONFIG_SPIRAM=y
 CONFIG_SPIRAM_BOOT_INIT=y
-
-# Allow boot even if PSRAM fails (for debugging)
 CONFIG_SPIRAM_IGNORE_NOTFOUND=y
-
-# Memory management - use PSRAM for large allocations
-CONFIG_SPIRAM_USE=y
 CONFIG_SPIRAM_USE_MALLOC=y
-CONFIG_SPIRAM_USE_CAPS_ALLOC=y
-CONFIG_SPIRAM_USE_MEMMAP=y
 
-# Reserve internal RAM for critical operations
+# Threshold for preferring small allocations from internal memory first
+# (MicroPython uses 8192, we use 16384 for Meshtastic requirements)
 CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=16384
-CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=32768
 
-# Cache workaround
-CONFIG_SPIRAM_CACHE_WORKAROUND=y
-
-# Wi-Fi and LWIP can use PSRAM
-CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
-
-# Timing (critical for reliability)
-CONFIG_SPIRAM_FETCH_INSTRUCTIONS=y
-CONFIG_SPIRAM_RODATA=y
-
-# Memory test on boot
-CONFIG_SPIRAM_MEMTEST=y
-
-# Flash configuration to match MicroPython
+# Flash configuration
 CONFIG_ESPTOOLPY_FLASHMODE_DIO=y
 CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
 CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
