@@ -52,25 +52,23 @@ jobs:
       working-directory: ./meshtastic-firmware
       run: pio pkg install -e supercon-heltec
     
-    # - name: Copy LGFX driver
-    #   run: |
-    #     LGFX_DEST="meshtastic-firmware/.pio/libdeps/supercon-heltec/meshtastic-device-ui/include/graphics/LGFX/"
-    #     mkdir -p "$LGFX_DEST"
-    #     cp meshtastic-firmware/variants/esp32s3/supercon_heltec/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h "$LGFX_DEST/"
-    # DISABLED: device-ui library not included in headless build
+    - name: Copy LGFX driver
+      run: |
+        LGFX_DEST="meshtastic-firmware/.pio/libdeps/supercon-heltec/meshtastic-device-ui/include/graphics/LGFX/"
+        mkdir -p "$LGFX_DEST"
+        cp meshtastic-firmware/variants/esp32s3/supercon_heltec/device-ui-patches/graphics/LGFX/LGFX_SUPERCON_2025.h "$LGFX_DEST/"
     
-    # - name: Patch DisplayDriverFactory
-    #   working-directory: ./meshtastic-firmware
-    #   run: |
-    #     FILE=".pio/libdeps/supercon-heltec/meshtastic-device-ui/source/graphics/driver/DisplayDriverFactory.cpp"
-    #     
-    #     # Add the include
-    #     if ! grep -q "LGFX_SUPERCON_2025.h" "$FILE"; then
-    #       sed -i '1i #include "graphics/LGFX/LGFX_SUPERCON_2025.h"' "$FILE"
-    #     fi
-    #     
-    #     echo "✓ DisplayDriverFactory patched"
-    # DISABLED: device-ui library not included in headless build
+    - name: Patch DisplayDriverFactory
+      working-directory: ./meshtastic-firmware
+      run: |
+        FILE=".pio/libdeps/supercon-heltec/meshtastic-device-ui/source/graphics/driver/DisplayDriverFactory.cpp"
+        
+        # Add the include
+        if ! grep -q "LGFX_SUPERCON_2025.h" "$FILE"; then
+          sed -i '1i #include "graphics/LGFX/LGFX_SUPERCON_2025.h"' "$FILE"
+        fi
+        
+        echo "✓ DisplayDriverFactory patched"
     
     - name: Build firmware
       working-directory: ./meshtastic-firmware

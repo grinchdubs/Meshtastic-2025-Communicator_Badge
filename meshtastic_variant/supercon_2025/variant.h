@@ -38,47 +38,45 @@
 #define SAO_GPIO1_PIN 7
 #define SAO_GPIO2_PIN 6
 
-// Display SPI (NV3007 TFT - 428×142 landscape) - TEMPORARILY DISABLED
+// Display SPI (NV3007 TFT - 428×142 landscape) - RE-ENABLED with qio_opi
 // NV3007 is similar to ST7789 but with custom initialization
-// #define HAS_SCREEN 1
-// #define HAS_TFT 1
-// #define USE_NV3007
+#define HAS_SCREEN 1
+#define HAS_TFT 1
+#define USE_NV3007
 
-// SPI pins for display - DISABLED
-// #define TFT_SDA 21      // MOSI
-// #define TFT_SCL 38      // SCK
-// #define TFT_MISO -1     // Not connected
-// #define TFT_CS 41       // Chip Select
-// #define TFT_DC 39       // Data/Command
-// #define TFT_RST 40      // Reset
-// #define TFT_BL 2        // Backlight (PWM)
-// #define TFT_TE 42       // Tearing Effect (optional)
+// SPI pins for display
+#define TFT_SDA 21      // MOSI
+#define TFT_SCL 38      // SCK
+#define TFT_MISO -1     // Not connected
+#define TFT_CS 41       // Chip Select
+#define TFT_DC 39       // Data/Command
+#define TFT_RST 40      // Reset
+#define TFT_BL 2        // Backlight (PWM)
+#define TFT_TE 42       // Tearing Effect (optional)
 
-// Display configuration - DISABLED
-// #define TFT_WIDTH 142
-// #define TFT_HEIGHT 428
-// Display configuration temporarily disabled to test radio without PSRAM
-// #define TFT_OFFSET_X 0
-// #define TFT_OFFSET_Y 12  // From MicroPython firmware
-// #define TFT_OFFSET_ROTATION 3  // 270 degrees (landscape)
-// #define TFT_INVERT false
-// #define TFT_BACKLIGHT_ON HIGH
+// Display configuration
+#define TFT_WIDTH 142
+#define TFT_HEIGHT 428
+#define TFT_OFFSET_X 0
+#define TFT_OFFSET_Y 12  // From MicroPython firmware
+#define TFT_OFFSET_ROTATION 3  // 270 degrees (landscape)
+#define TFT_INVERT false
+#define TFT_BACKLIGHT_ON HIGH
 
-// LovyanGFX configuration for NV3007 - DISABLED
-// #define ST7789_CS TFT_CS
-// #define ST7789_RS TFT_DC
-// #define ST7789_SDA TFT_SDA
-// #define ST7789_SCK TFT_SCL
-// #define ST7789_RESET TFT_RST
-// #define ST7789_MISO TFT_MISO
-// #define ST7789_BUSY -1
-// #define ST7789_BL TFT_BL
-// #define ST7789_SPI_HOST SPI2_HOST
-// #define SPI_FREQUENCY 80000000   // 80MHz from MicroPython
-// #define SPI_READ_FREQUENCY 16000000
+// LovyanGFX configuration for NV3007
+#define ST7789_CS TFT_CS
+#define ST7789_RS TFT_DC
+#define ST7789_SDA TFT_SDA
+#define ST7789_SCK TFT_SCL
+#define ST7789_RESET TFT_RST
+#define ST7789_MISO TFT_MISO
+#define ST7789_BUSY -1
+#define ST7789_BL TFT_BL
+#define ST7789_SPI_HOST SPI2_HOST
+#define SPI_FREQUENCY 80000000   // 80MHz from MicroPython
+#define SPI_READ_FREQUENCY 16000000
 
 // Use ST7789 panel as base (NV3007 is compatible)
-// Note: All display code disabled until PSRAM initialization works
 
 // LoRa Radio (SX1262 via SPI)
 // Note: USE_SX1262 is defined in platformio.ini
