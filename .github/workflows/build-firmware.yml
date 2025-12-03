@@ -52,6 +52,12 @@ jobs:
       working-directory: ./meshtastic-firmware
       run: pio pkg install -e supercon-heltec
     
+    - name: Copy custom board definition
+      run: |
+        mkdir -p meshtastic-firmware/boards
+        cp meshtastic_variant/supercon_heltec/supercon-heltec.json meshtastic-firmware/boards/
+        echo "✓ Custom board definition installed"
+    
     - name: Copy LGFX driver
       run: |
         LGFX_DEST="meshtastic-firmware/.pio/libdeps/supercon-heltec/meshtastic-device-ui/include/graphics/LGFX/"
